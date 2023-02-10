@@ -1224,6 +1224,9 @@ end
 
 %White background !
 set(gcf,'color','w','PaperPositionMode','auto');
+% ADDED BY SE: 2023-02-10
+set(ca,'TickDir','out')
+set(ca,'ticklength',3*get(ca,'ticklength'))
 
 % Make everything tight and set the resize function so that it stays so
 if do_redraw  && ~obj.multi.active %Redrawing for multiple plots is handled at the beginning of draw()
