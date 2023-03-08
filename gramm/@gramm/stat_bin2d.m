@@ -28,9 +28,11 @@ x=comb(draw_data.x);
 y=comb(draw_data.y);
 
 if isempty(params.edges)
-    [N,C] = hist3([shiftdim(x),shiftdim(y)],params.nbins);
+    [N,C] = histogram2 ([shiftdim(x),shiftdim(y)],params.nbins);
+    N = (N./sum(N(:)))*100; % SE : Added to normalize
 else
     [N,C] = hist3([shiftdim(x),shiftdim(y)],'Edges',params.edges);
+    N = (N./sum(N(:)))*100; % SE : Added to normalize
     
     obj.plot_lim.minx(obj.current_row,obj.current_column)=params.edges{1}(1);
     obj.plot_lim.maxx(obj.current_row,obj.current_column)=params.edges{1}(end);
@@ -101,7 +103,7 @@ switch params.geom
                 Nr=Nr./((Xe-Xs).*(Ye-Ys));
                 obj.aes_names.color='Count/area';
             else
-                obj.aes_names.color='Count';
+                obj.aes_names.color='Probability'; % SE : edit to reflect norm
             end
             
         end
