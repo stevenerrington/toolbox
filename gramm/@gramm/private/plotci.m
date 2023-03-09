@@ -142,7 +142,16 @@ function hndl=plotci(obj,x,y,yci,draw_data,geom,dodge,width)
                         xpatch=[barleft ; barright ; barright ; barleft];
                         ypatch=[zeros(1,length(y)) ; zeros(1,length(y)) ; y ; y];
                         [xpatch,ypatch]=to_polar(obj,xpatch,ypatch);
-                        hndl.bar_handle=patch(xpatch,ypatch,[1 1 1],'FaceColor',draw_data.color,'EdgeColor','none');
+                        
+                        if length(draw_data.color) == 4
+                            draw_data.alpha = draw_data.color(4);
+                            draw_data.color = draw_data.color(1:3);
+                        else
+                            draw_data.alpha = 1;
+                            draw_data.color = draw_data.color;
+                        end
+                        
+                        hndl.bar_handle=patch(xpatch,ypatch,[1 1 1],'FaceColor',draw_data.color,'EdgeColor','none','FaceAlpha',draw_data.alpha);
                    case 'edge_bar'
                         barleft=x-bar_width/2;
                         barright=x+bar_width/2;
