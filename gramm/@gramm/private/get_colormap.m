@@ -210,7 +210,7 @@ if ischar(opts.map)
 else
     %For custom colormaps
     if isempty(opts.n_color) || isempty(opts.n_lightness)
-        disp('Custom colormap without n_color and n_lightness specified, defaults to n_lightness=1')
+        %disp('Custom colormap without n_color and n_lightness specified, defaults to n_lightness=1')
         cmap_nc = size(opts.map,1);
         cmap_nl = 1;
     else
