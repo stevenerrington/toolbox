@@ -1258,6 +1258,7 @@ end
 
 
 obj.updater.first_draw=false;
+
 end
 
 function out=allmax(in)

@@ -107,7 +107,7 @@ g.draw();
 
 clear g
 
-g(1,1)=gramm('x',labels,'y',data);
+g(1,1)=gramm('x',cars.Origin_Region,'y',cars.MPG);
 g(1,2)=copy(g(1));
 g(1,3)=copy(g(1));
 g(2,1)=copy(g(1));
@@ -122,7 +122,7 @@ g(1,2).geom_jitter('width',0.4,'height',0);
 g(1,2).set_title('geom_jitter()');
 
 %Averages with confidence interval
-g(1,3).stat_summary('geom',{'bar','black_errorbar'});
+g(1,3).stat_summary('geom',{'line','bar','black_errorbar'});
 g(1,3).set_title('stat_summary()');
 
 %Boxplots

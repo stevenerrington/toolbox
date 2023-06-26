@@ -6,7 +6,7 @@ function obj=geom_vline(obj,varargin)
 
 p=inputParser;
 my_addParameter(p,'xintercept',0);
-my_addParameter(p,'style','k--');
+my_addParameter(p,'style','k-');
 my_addParameter(p,'extent',2);
 my_addParameter(p,'linewidth',1);
 parse(p,varargin{:});
