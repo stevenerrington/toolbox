@@ -412,6 +412,7 @@ for ind_row=1:length(uni_row)
         % ADDED BY SE: 2023-02-10
         set(ax_temp,'TickDir','out');
         set(ax_temp,'ticklength',3*get(ax_temp,'ticklength'));
+        set(ax_temp,'color','none');
         
         hold on
         
