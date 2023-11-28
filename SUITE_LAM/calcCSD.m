@@ -1,4 +1,4 @@
-efunction CSD = calcCSD(EVPflip)
+function CSD = calcCSD(EVPflip)
 
 totchan = size(EVPflip,2);
 if ndims(EVPflip) == 3

@@ -24,7 +24,7 @@ for i = 1 : nele
 end
 
 set(gca,'linewidth', 1, 'fontsize', 10, 'ydir', 'rev', ...
-    'ylim', [1 size(PSD,1)], 'xlim', [3 200], 'ytick', linspace(1, size(PSD,1), nele), 'yticklabel', labels)
+    'ylim', [1 size(PSD,1)], 'xlim', [3 100], 'ytick', linspace(1, size(PSD,1), nele), 'yticklabel', labels)
 
 % ylabel(c1, '% Diff. from Array Mean')
 

@@ -89,16 +89,19 @@ for i_ch = 1 : size(lfp_t, 1)
     f = freq_vector;
 end
 % % 
-%     psd_norm = psd./max(abs(psd));
 
-for i_f = 1 : size(psd, 2)
-    
-    for i_ch = 1 : size(lfp_t, 1)
-        
-        psd_norm( i_ch, i_f ) = ( psd( i_ch, i_f ) ...
-            - mean( psd( :, i_f ) ) ) ...
-            / mean( psd( :, i_f ) ) * 100;
-        
-    end
-end
-end
+
+psd_norm = psd./max(abs(psd));
+
+% 
+% for i_f = 1 : size(psd, 2)
+%     
+%     for i_ch = 1 : size(lfp_t, 1)
+%         
+%         psd_norm( i_ch, i_f ) = ( psd( i_ch, i_f ) ...
+%             - mean( psd( :, i_f ) ) ) ...
+%             / mean( psd( :, i_f ) ) * 100;
+%         
+%     end
+% end
+% end

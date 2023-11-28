@@ -10,8 +10,8 @@ CORRE = H_SMOOTHD1(CORRE');
 CORRE = H_SMOOTHD1(CORRE');
 imagesc(CORRE)
 
-tej = flipud(colormap('jet'));
-colormap(tej);
+% tej = flipud(colormap('jet'));
+% colormap(tej);
 
 c1 = colorbar;
 xlabel('Upper <- (Depth) -> Lower');
@@ -19,7 +19,7 @@ ylabel('Lower <- (Depth) -> Upper');
 
 for ii = 1 : length(contactIdx)
     i = contactIdx(ii);
-    if isEven(i)
+    if iseven(i)
         labels{ii} = num2str(i);
     else
         labels{ii} = [];
