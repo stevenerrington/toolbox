@@ -20,7 +20,7 @@ function [CSDf] = H_SMOOTHD1(CSD)
     end
     % and filter
     
-    gauss_sigma  = 0.1;
+    gauss_sigma  = 0.05;
     filter_range = 5*gauss_sigma; % numeric filter must be finite in extent
     [zs,CSDf]  = gaussian_filtering(zs,new_CSD_matrix,gauss_sigma,filter_range);
     

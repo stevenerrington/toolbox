@@ -1,10 +1,11 @@
 function [CSDf] = H_2DSMOOTH(CSD)
 
     new_CSD_matrix=[];
-    totchan = (size(CSD,1) + 2)/10;
-    el_pos = .1:.1:totchan;
+    % totchan = (size(CSD,1) + 2)/10;
+    % el_pos = .2:.2:totchan;
 
-    
+    el_pos = 0.2:0.2:(0.2*16);
+
     npoints = 10* size(CSD,1);
     le = length(el_pos)-2;
     first_z = el_pos(1)-(el_pos(2)-el_pos(1))/2; %plot starts at z1-h/2;

@@ -12,7 +12,8 @@ function donout = donut(numdat,varargin)
 
 % Default Values, if no variable arguments in
 legtext = [];
-colormap lines
+color_heatmap = flipud(cbrewer('div','RdBu',3));
+colormap(color_heatmap)
 clrmp = colormap;
 ispie = 0;
 

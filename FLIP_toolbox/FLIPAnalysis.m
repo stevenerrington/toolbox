@@ -218,7 +218,7 @@ else
     lowfreqmaxchannel = betamaxchannel;
     crossoverchannel = final_crossoverchannel;
 
-    plot_result(nonnormpowmat, lowfreqmaxchannel, highfreqmaxchannel, crossoverchannel, goodnessvalue, setfreqbool, superficialchannel, deepchannel, alphafreqrange, gammafreqrange);
+    % plot_result(nonnormpowmat, lowfreqmaxchannel, highfreqmaxchannel, crossoverchannel, goodnessvalue, setfreqbool, superficialchannel, deepchannel, alphafreqrange, gammafreqrange);
 end
 end
 

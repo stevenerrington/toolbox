@@ -1,7 +1,7 @@
 function csd_trial = D_CSD_BASIC(lfp_in, varargin)
 
 cndt           = 0.0004;
-spc            = .15; % in mm
+spc            = .20; % in mm
 
 varStrInd = find(cellfun(@ischar,varargin));
 for iv = 1:length(varStrInd)
@@ -18,7 +18,7 @@ csd_trial = nan(size(lfp_in,1), size(lfp_in,2), size(lfp_in,3));
 for i_trial = 1 : size(lfp_in,3)
     
     t_csd       = lfp_in(:,:,i_trial);
-    csd_in      = t_csd .* 1000; % mV to uV
+    csd_in      = t_csd ; %.* 1000; % mV to uV
     
     nChan       = size( csd_in, 1 ) * spc;
     
