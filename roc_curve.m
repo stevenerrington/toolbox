@@ -139,10 +139,10 @@ function ROC_data = roc_curve(class_1, class_2, dispp, dispt)
         title(['AROC = ' num2str(param.AROC)]);
     end
     
-    % AROC warning
-    if param.AROC < 0.5
-        warning('Since AROC is less than 0.5, you should swap the classes: roc_curve(class_2,class_1).');
-    end
+    % % AROC warning
+    % if param.AROC < 0.5
+    %     warning('Since AROC is less than 0.5, you should swap the classes: roc_curve(class_2,class_1).');
+    % end
     
     % Log screen parameters if required
     if(dispt == 1)
