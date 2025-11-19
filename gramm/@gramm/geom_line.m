@@ -3,10 +3,16 @@ function obj=geom_line(obj,varargin)
 %
 % This will add a layer that will display data as lines
 % If the data is not properly grouped/ordered things can look weird.
+% In simple cases without cell array inputs, setting the 'ordered'
+% parameter to true will order line nodes along the x axis
 
 p=inputParser;
 my_addParameter(p,'dodge',0);
 my_addParameter(p,'alpha',1);
+my_addParameter(p,'stacked',false);
+my_addParameter(p,'fill',[]); 
+my_addParameter(p,'fill_alpha',0.4);
+my_addParameter(p,'ordered',false);
 parse(p,varargin{:});
 
 obj.geom=vertcat(obj.geom,{@(dobj,dd)my_line(dobj,dd,p.Results)});
@@ -81,19 +87,76 @@ else
     %(it adds a NaN between lines that have to be separated)
     if isempty(draw_data.z)
         
-        x=combnan(draw_data.x);
-        y=combnan(draw_data.y);
-        x=dodger(x,draw_data,params.dodge);
-        [x,y]=to_polar(obj,x,y);
+
         
-        hndl=line(combnan(x),combnan(y),'LineStyle',draw_data.line_style,'lineWidth',draw_data.line_size,'Color',draw_data.color);
+
+        if params.stacked || ~isempty(params.fill)
+            
+            if iscell(draw_data.x) || iscell(draw_data.y)
+                warning('stacked or fill options require simple array input for x and y');
+                obj.results.geom_line_handle{obj.result_ind,1}=[];
+                return;
+            end
+            
+            if length(unique(draw_data.x))<length(draw_data.x)
+                warning('stacked or fill options will produce unexpected results with non unique x values');
+            end
+
+            [x,i]=sort(draw_data.x);
+            y=draw_data.y(i);
+
+
+            if params.stacked
+                [xline, bottom, top] = stacker(obj,x,y,draw_data.facet_x,params.fill,'line');
+            else
+                xline = x(:)';
+                bottom = zeros(1,length(x))+params.fill;
+                top = y(:)';
+            end
+
+            xpatch = [xline(1:end-1) ; xline(2:end) ; xline(2:end) ; xline(1:end-1)];
+            ypatch = [top(1:end-1); top(2:end) ; bottom(2:end) ; bottom(1:end-1)];
+            [xpatch,ypatch]=to_polar(obj,xpatch,ypatch);
+
+            obj.results.geom_line_fill_handle{obj.result_ind,1}=patch(xpatch,ypatch,[1 1 1],...
+                'FaceColor',draw_data.color,...
+                'EdgeColor','none',...
+                'FaceAlpha',params.fill_alpha,...
+                'EdgeAlpha', params.alpha);
+
+            hndl=patch('XData',combnan(xline),'YData',combnan(top),...
+                'LineStyle',draw_data.line_style,'LineWidth',draw_data.line_size,'EdgeColor',draw_data.color);
+
+            if obj.plot_lim.maxy(obj.current_row,obj.current_column)<max(top)
+                obj.plot_lim.maxy(obj.current_row,obj.current_column)=max(top);
+            end
+
+        else
+            
+            x=combnan(draw_data.x);
+            y=combnan(draw_data.y);
+            x=dodger(x,draw_data,params.dodge);
+            if params.ordered 
+                [x,i]=sort(x);
+                y=y(i);
+            end
+
+            [x,y]=to_polar(obj,x,y);
+            hndl=patch('XData',combnan(x),'YData',combnan(y),...
+                'LineStyle',draw_data.line_style,'LineWidth',draw_data.line_size,'EdgeColor',draw_data.color);
+        end
+
+
     else
-        hndl=line(combnan(draw_data.x),combnan(draw_data.y),combnan(draw_data.z),'LineStyle',draw_data.line_style,'lineWidth',draw_data.line_size,'Color',draw_data.color);
+        hndl=patch('XData',combnan(draw_data.x),'YData',combnan(draw_data.y),'ZData',combnan(draw_data.z),...
+            'LineStyle',draw_data.line_style,'LineWidth',draw_data.line_size,'EdgeColor',draw_data.color);
     end
 end
 
-
-set_alpha(hndl,params.alpha,1);
+if ~isempty(hndl)
+    hndl.EdgeAlpha = params.alpha;
+end
 
 obj.results.geom_line_handle{obj.result_ind,1}=hndl;
+
 end

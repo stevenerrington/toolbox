@@ -379,6 +379,7 @@ for ind_row=1:length(uni_row)
                     %axes(obj.facet_axes_handles(ind_row,ind_column));
                     %Store content of first facet for copying it on the other facets !
                     first_axes_children=allchild(obj.facet_axes_handles(ind_row,ind_column));
+                    axes(obj.facet_axes_handles(ind_row,ind_column));
                 else
                     %We need to create the next facets because they don't exist
                     if obj.wrap_ncols>0
@@ -389,30 +390,24 @@ for ind_row=1:length(uni_row)
                     %And we copy the contents of the first facet in the new ones
                     copyobj(first_axes_children,obj.facet_axes_handles(ind_row,ind_column));
                 end
-            %else
-                %In other cases (same facets or multiple to
-                %one facet), the facets already exist
-                %axes(obj.facet_axes_handles(ind_row,ind_column));
-            end
-            
-            if obj.updater.facet_updated==-1 %If facets were updated from many to one facets
+            elseif obj.updater.facet_updated==-1 %If facets were updated from many to one facets
                 if ind_column==1 && ind_row==1
                     %We store the current content of the first
                     %facet so that we can check which new
                     %things are going to be drawn in
                     first_axes_children=allchild(obj.facet_axes_handles(ind_row,ind_column));
                 end
+            else
+                %In other cases (same facets or multiple to
+                %one facet), the facets already exist
+                axes(obj.facet_axes_handles(ind_row,ind_column));
             end
         end
         
         %Make axes current
-        axes(obj.facet_axes_handles(ind_row,ind_column));
-        
-        ax_temp = gca;
-        % ADDED BY SE: 2023-02-10
-        set(ax_temp,'TickDir','out');
-        set(ax_temp,'ticklength',3*get(ax_temp,'ticklength'));
-        set(ax_temp,'color','none');
+        %Was making figure visible even when visibility was set to off
+        %axes(obj.facet_axes_handles(ind_row,ind_column)); 
+        groot.CurrentFigure.CurrentAxes=obj.facet_axes_handles(ind_row,ind_column);
         
         hold on
         
@@ -532,6 +527,12 @@ for ind_row=1:length(uni_row)
                                     draw_data.color=cmap((ind_color-1)*length(uni_lightness)+ind_lightness,:);
                                     draw_data.marker=obj.point_options.markers{1+mod(ind_marker-1,length(obj.point_options.markers))};
                                     draw_data.line_style=obj.line_options.styles{1+mod(ind_linestyle-1,length(obj.line_options.styles))};
+                                    draw_data.border_width=obj.point_options.border_width;
+                                    if strcmp(obj.point_options.border_color,'auto')
+                                        draw_data.border_color=draw_data.color;
+                                    else
+                                        draw_data.border_color=obj.point_options.border_color;
+                                    end
                                     if obj.line_options.use_input
                                         draw_data.line_size=obj.line_options.input_fun(uni_size{ind_size});
                                     else
@@ -634,6 +635,8 @@ if ~isempty(obj.title)
             'Parent',obj.parent);
         
         set(obj.title_axe_handle,'Visible','off','XLim',[-1 1],'YLim',[-1 1]);
+        obj.title_axe_handle.Toolbar.Visible='off';
+        obj.title_axe_handle.Interactions=[];
         obj.title_text_handle=text(0,0,obj.title,...
             'FontWeight','bold',...
             'Interpreter',obj.text_options.interpreter,...
@@ -693,6 +696,8 @@ if obj.updater.first_draw
     end
     hold on
     set(obj.legend_axe_handle,'Visible','off','NextPlot','add');
+    obj.legend_axe_handle.Toolbar.Visible = 'off';
+    obj.legend_axe_handle.Interactions = [];
     %set(obj.legend_axe_handle,'PlotBoxAspectRatio',[1 1 1]);
 else
     axes(obj.legend_axe_handle)
@@ -725,7 +730,7 @@ if obj.layout_options.legend
     %Lightness legend
     if length(uni_lightness)>1 && any(strcmp(obj.color_options.legend,{'separate','separate_gray','merge'}))
         
-        if ischar(obj.color_options.map) && strcmp(obj.color_options.map,'lch') && strcmp(obj.color_options.legend,'separate_gray')
+        if (ischar(obj.color_options.map) || isstring(obj.color_options.map)) && strcmp(obj.color_options.map,'lch') && strcmp(obj.color_options.legend,'separate_gray')
             %With LCH we can generate a correct desaturated legend
             lightness_legend_map=pa_LCH2RGB([linspace(obj.color_options.lightness_range(1),obj.color_options.lightness_range(2),length(uni_lightness))' ...
                 zeros(length(uni_lightness),1)...
@@ -873,7 +878,12 @@ for ind_row=1:length(uni_row) %Loop over rows
         
         set(ca,'FontName',obj.text_options.font,...
             'FontSize',obj.text_options.base_size)
-
+        
+        if isempty(obj.aes.z)
+            axtoolbar(ca,{'datacursor','pan','zoomin','zoomout','pan','restoreview'});
+        else
+            axtoolbar(ca,{'datacursor','rotate','pan','zoomin','zoomout','pan','restoreview'});
+        end
         
         if obj.continuous_color_options.active
             %Set color limits the same way on each plot
@@ -1194,7 +1204,14 @@ for ind_row=1:length(uni_row) %Loop over rows
                 tmp_xl=[obj.var_lim.minx obj.var_lim.maxx];
                 tmp_extent=(tmp_xl(2)-tmp_xl(1))*obj.abline.extent(line_ind)/2;
                 xl=[mean(tmp_xl)-tmp_extent mean(tmp_xl)+tmp_extent];
+                if strcmp(ca.XScale,'log') && xl(1)<0 %Correct negative values if log axes
+                    xl(1)=1;
+                end
                 if ~isnan(obj.abline.intercept(line_ind))
+                    %draw it properly (curved) if log axes
+                    if strcmp(ca.XScale,'log') || strcmp(ca.YScale,'log')
+                        xl=xl(1):(xl(2)-xl(1))/50:xl(2);
+                    end
                     %abline
                     plot(xl,xl*obj.abline.slope(line_ind)+obj.abline.intercept(line_ind),obj.abline.style{line_ind},'LineWidth',obj.abline.linewidth(line_ind),'Parent',ca);
                 else
@@ -1230,7 +1247,6 @@ end
 %White background !
 set(gcf,'color','w','PaperPositionMode','auto');
 
-
 % Make everything tight and set the resize function so that it stays so
 if do_redraw  && ~obj.multi.active %Redrawing for multiple plots is handled at the beginning of draw()
     redraw(obj);
@@ -1259,7 +1275,6 @@ end
 
 
 obj.updater.first_draw=false;
-
 end
 
 function out=allmax(in)

@@ -34,13 +34,14 @@ my_addParameter(p,'lambda',[]);
 my_addParameter(p,'geom','area');
 my_addParameter(p,'method','eilers');
 my_addParameter(p,'npoints',200);
+my_addParameter(p,'setylim',false);
 parse(p,varargin{:});
 
 %Set default lambdas
 temp_results=p.Results;
 if isempty(temp_results.lambda)
     switch temp_results.method
-        case 'perfect'
+        case 'eilers'
             temp_results.lambda = 1000;
         case 'smoothingspline'
             temp_results.lambda = [];
@@ -59,7 +60,7 @@ function hndl=my_smooth(obj,draw_data,params)
 %Define anonymous function for smoothing depending on method
 switch params.method
     case 'eilers'
-        fun=@(x,y)wrap_eilers(x,y,params.npoints,1000); %Standard value for cell/matrix input
+        fun=@(x,y)wrap_eilers(x,y,params.npoints,params.lambda); %Standard value for cell/matrix input
     case 'smoothingspline'
         fun=@(x,y)wrap_fit(x,y,params.npoints,params.lambda);
     otherwise
@@ -81,8 +82,12 @@ if iscell(draw_data.x) || iscell(draw_data.y) %If input was provided as cell/mat
     for k=1:length(draw_data.y) %then we smooth each trajectory independently
         if ~isempty(draw_data.y{k})
             
+            tmpx = shiftdim(draw_data.x{k});
+            tmpy = shiftdim(draw_data.y{k});
+            idnan=isnan(tmpx) | isnan(tmpy);
+
             %[tempy(k,:),tempx(k,:)] = scatsm(draw_data.x{k}, draw_data.y{k}, params.lambda, 2, params.npoints);
-            [tempx(k,:),tempy(k,:)] = fun(shiftdim(draw_data.x{k}), shiftdim(draw_data.y{k}));
+            [tempx(k,:),tempy(k,:)] = fun(tmpx(~idnan), tmpy(~idnan));
         end
     end
     hndl=plot(tempx',tempy','LineStyle',draw_data.line_style,'lineWidth',draw_data.line_size,'Color',draw_data.color);
@@ -119,7 +124,7 @@ else
     if length(combx)>3
         
         %Special case for Eilers method, find best smoothing (done per smooth) using RMS cross-validation error
-        if strcmp(params.method,'eilers') && ischar(params.lambda) && strcmp(params.lambda,'auto')
+        if strcmp(params.method,'eilers') && (ischar(params.lambda) || isstring(params.lambda)) && strcmp(params.lambda,'auto')
             lambdas = 10 .^ (0:.2:7);
             cvs=zeros(1,length(lambdas));
             for k = 1:length(lambdas)
@@ -262,6 +267,23 @@ else
     obj.results.stat_smooth{obj.result_ind,1}.y=newy;
     obj.results.stat_smooth{obj.result_ind,1}.yci=yci;
     
+    %Do we set the y limits according to the smoothed curves or to
+    %the original data ?
+    if params.setylim
+        if sum(sum(isnan(yci)))~=numel(yci) %We only do this if yci is not weird
+            if obj.firstrun(obj.current_row,obj.current_column) %Initialize for the first run in the subplot
+                obj.plot_lim.maxy(obj.current_row,obj.current_column)=max(max(yci));
+                obj.plot_lim.miny(obj.current_row,obj.current_column)=min(min(yci));
+            else %Update for subsequent runs in the subplot
+                if max(max(yci))>obj.plot_lim.maxy(obj.current_row,obj.current_column)
+                    obj.plot_lim.maxy(obj.current_row,obj.current_column)=max(max(yci));
+                end
+                if min(min(yci))<obj.plot_lim.miny(obj.current_row,obj.current_column)
+                    obj.plot_lim.miny(obj.current_row,obj.current_column)=min(min(yci));
+                end
+            end
+        end
+    end
     
     hndl=plotci(obj,newx,newy,yci,draw_data,params.geom);
     

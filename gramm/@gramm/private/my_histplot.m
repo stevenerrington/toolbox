@@ -24,6 +24,8 @@ if isempty(params.fill)
     switch params.geom
         case 'bar'
             params.fill='face';
+        case 'stacked_bars'
+            params.fill='face';
         case 'line'
             params.fill='edge';
         case 'overlaid_bar'
@@ -149,7 +151,7 @@ switch params.geom
         [xpatch,ypatch]=to_polar(obj,xpatch,ypatch);
         results.bar_handle=patch(xpatch,...
             ypatch,...
-            [1 1 1],'FaceColor',face_color,'EdgeColor',edge_color,'FaceAlpha',face_alpha,'EdgeAlpha',edge_alpha);
+            [1 1 1],'FaceColor',face_color,'EdgeColor',edge_color,'FaceAlpha',face_alpha,'EdgeAlpha',0);
         
     case 'line'
         xtemp=bar_mid;
@@ -159,7 +161,7 @@ switch params.geom
         xpatch=[bar_mid(1:end-1) ; bar_mid(2:end) ; bar_mid(2:end);bar_mid(1:end-1)];
         ypatch=[zeros(1,length(bincounts)-1) ; zeros(1,length(bincounts)-1) ; bincounts(2:end)' ; bincounts(1:end-1)'];
         [xpatch,ypatch]=to_polar(obj,xpatch,ypatch);
-        results.fill_handle=patch(xpatch,ypatch,[1 1 1],'FaceColor',face_color,'EdgeColor','none','FaceAlpha',face_alpha);
+        results.fill_handle=patch(xpatch,ypatch,[1 1 1],'FaceColor',face_color,'EdgeColor','none','LineStyle','none');
         
     case 'stacked_bar'
         xpatch=[binranges(1:end-1)+spacing ; binranges(2:end)-spacing ; binranges(2:end)-spacing ; binranges(1:end-1)+spacing];

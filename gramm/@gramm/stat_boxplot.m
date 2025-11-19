@@ -121,7 +121,7 @@ end
 %Draw boxes
 hndl=patch(xpatch,...
     ypatch,...
-    [1 1 1],'FaceColor',draw_data.color,'EdgeColor','k','FaceAlpha',0.5,'EdgeAlpha',0.5);
+    [1 1 1],'FaceColor',draw_data.color,'EdgeColor','k','FaceAlpha',1,'EdgeAlpha',1);
 
 obj.results.stat_boxplot{obj.result_ind,1}.box_handle=hndl;
 
